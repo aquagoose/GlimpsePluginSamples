@@ -1,6 +1,6 @@
 ﻿{
   "ID": "SimpleDelayEffect",
   "Name": "Simple Delay Effect",
-  "Author": "Glimpse Team",
+  "Author": "aquagoose",
   "Description": "An example of a Glimpse plugin that applies a delay effect to the audio output."
 }
