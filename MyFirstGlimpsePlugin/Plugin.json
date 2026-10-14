@@ -1,0 +1,6 @@
+﻿{
+  "ID": "MyFirstGlimpsePlugin",
+  "Name": "My First Glimpse Plugin",
+  "Author": "Me",
+  "Description": "An example of a simple Glimpse plugin that plays a random file."
+}
