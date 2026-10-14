@@ -14,13 +14,15 @@ public class MyPlugin : IPlugin
     public void Initialize(IGlimpse glimpse)
     {
         _glimpse = glimpse;
-        IsInitialized = true;
         
         // add a button to the top row, which plays a random song from the user's library when clicked.
         // every button must have a unique ID, an icon, and an optional tooltip.
         // using asset:// allows you to load an icon directly from glimpse itself, in this case we are
         // loading the shuffle icon.
         _glimpse.AddButton("RandomSong", "asset://Icons.Shuffle.png", "Play a random song!", PlayRandomSong);
+        
+        // ensure we set that the plugin has been initialized.
+        IsInitialized = true;
     }
 
     private void PlayRandomSong()

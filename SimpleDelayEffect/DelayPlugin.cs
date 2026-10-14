@@ -20,7 +20,7 @@ public class DelayPlugin : IPlugin
     private float[] _buffer;
     private uint _currentIndex;
 
-    public bool IsInitialized => true;
+    public bool IsInitialized { get; private set; }
 
     public bool ConfigChanged => _workingConfig != _config;
     
@@ -39,6 +39,8 @@ public class DelayPlugin : IPlugin
         _buffer = new float[(uint) (SampleRate * Channels * MaxDelayTime)];
         _numSamples = (uint) (SampleRate * Channels * _config.DelaySeconds);
         _glimpse.Player.AddEffect(_effect);
+
+        IsInitialized = true;
     }
 
     public void OnGUI(IImmediateGUI ui)
