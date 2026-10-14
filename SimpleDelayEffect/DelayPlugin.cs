@@ -1,5 +1,4 @@
-﻿using System.Runtime.InteropServices;
-using Glimpse.API;
+﻿using Glimpse.API;
 using Glimpse.API.Codecs;
 using Glimpse.API.UI;
 
@@ -7,7 +6,9 @@ namespace SimpleDelayEffect;
 
 public class DelayPlugin : IPlugin
 {
-    public const float MaxDelayTime = 1f;
+    private const uint SampleRate = 48000; // glimpse uses 48khz sample rate. currently this is not adjustable
+    private const uint Channels = 2; // glimpse provides a stereo output. currently this is not adjustable
+    private const float MaxDelayTime = 1f;
     
     private IGlimpse _glimpse;
     private IAudioPlayer.AudioEffect _effect;
@@ -35,8 +36,8 @@ public class DelayPlugin : IPlugin
         }
 
         _workingConfig = _config;
-        _buffer = new float[(uint) (44100 * 2 * MaxDelayTime)];
-        _numSamples = (uint) (44100 * 2 * _config.DelaySeconds);
+        _buffer = new float[(uint) (SampleRate * Channels * MaxDelayTime)];
+        _numSamples = (uint) (SampleRate * Channels * _config.DelaySeconds);
         _glimpse.Player.AddEffect(_effect);
     }
 
@@ -44,26 +45,21 @@ public class DelayPlugin : IPlugin
     {
         if (ui.Slider("Delay Time", ref _workingConfig.DelaySeconds, 0.001f, MaxDelayTime))
         {
-            _numSamples = (uint) (44100 * 2 * _workingConfig.DelaySeconds);
+            _numSamples = (uint) (SampleRate * Channels * _workingConfig.DelaySeconds);
             _currentIndex = 0;
         }
         ui.Slider("Decay Factor", ref _workingConfig.DecayFactor, 0.001f, 1.0f);
     }
 
-    private void DelayEffect(Span<byte> buffer, AudioFormat format)
+    private void DelayEffect(Span<float> buffer, in AudioFormat format)
     {
-        Span<short> data = MemoryMarshal.Cast<byte, short>(buffer);
-
-        for (int i = 0; i < data.Length; i++)
+        for (int i = 0; i < buffer.Length; i++)
         {
-            float fData = data[i] / (float) short.MaxValue;
-            
             float oldSample = _buffer[_currentIndex];
-            float sample = fData + (oldSample * _workingConfig.DecayFactor);
+            float sample = buffer[i] + (oldSample * _workingConfig.DecayFactor);
             _buffer[_currentIndex] = sample;
             _currentIndex = (_currentIndex + 1) % _numSamples;
-
-            data[i] = (short) (float.Clamp(sample, -1, 1) * short.MaxValue);
+            buffer[i] = sample;
         }
     }
 
